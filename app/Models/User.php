@@ -10,19 +10,24 @@ class User extends Authenticatable
 {
     use HasApiTokens, Notifiable;
 
-    protected $table = 'user'; // Penegasan nama tabel
+    // Menyesuaikan dengan nama tabel di database Anda
+    protected $table = 'user';
 
+    // Kolom yang diizinkan untuk diisi data
     protected $fillable = [
-        'username',
-        'password',
         'nama_lengkap',
+        'username', // Digunakan untuk menyimpan email
         'jenis_kelamin',
         'no_telp',
+        'password',
+        'role',
+        'google_id',
         'alamat',
-        'role'
     ];
 
+    // Kolom yang disembunyikan
     protected $hidden = [
         'password',
+        'remember_token',
     ];
 }

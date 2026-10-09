@@ -4,8 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Marketqu</title>
+    <title>Register - Marketqu</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @keyframes float-a {
@@ -50,23 +52,24 @@
 
 <body class="bg-white font-sans min-h-screen flex flex-col lg:flex-row selection:bg-[#0088cc] selection:text-white">
 
-    <!-- Form Login (Kiri) -->
+    <!-- BAGIAN KIRI (Form Register) -->
     <div class="w-full lg:w-1/2 flex flex-col px-6 sm:px-12 md:px-24 lg:px-32 relative bg-white min-h-screen">
+
+        <!-- Logo -->
         <div class="pt-8 pb-4 lg:pt-12">
             <a href="{{ route('katalog') }}" class="flex items-center gap-3 text-[#0088cc] group w-max">
                 <div
-                    class="w-10 h-10 rounded-full border-2 border-[#0088cc] flex items-center justify-center group-hover:bg-[#0088cc] group-hover:text-white transition-all shadow-sm group-hover:shadow-md group-hover:rotate-12">
+                    class="w-10 h-10 rounded-full border-2 border-[#0088cc] flex items-center justify-center group-hover:bg-[#0088cc] group-hover:text-white transition-all duration-300 shadow-sm group-hover:shadow-md group-hover:rotate-12">
                     <i class="fa-solid fa-shirt text-xl"></i>
                 </div>
                 <span
-                    class="text-2xl font-extrabold tracking-wide text-gray-800 group-hover:text-[#0088cc] transition-colors">MARKETQU</span>
+                    class="text-2xl font-extrabold tracking-wide text-gray-800 group-hover:text-[#0088cc] transition-colors duration-300">MARKETQU</span>
             </a>
         </div>
 
         <div class="flex-grow flex flex-col justify-center w-full max-w-sm mx-auto py-8">
-            <h2 class="text-xl font-extrabold mb-8 text-gray-800">Sign In</h2>
+            <h2 class="text-xl font-extrabold mb-8 text-gray-800">Sign Up</h2>
 
-            <!-- Pesan Error -->
             @if ($errors->any())
                 <div
                     class="bg-red-50 text-red-600 p-3 rounded-lg mb-6 text-sm border border-red-200 flex items-start gap-3">
@@ -75,93 +78,125 @@
                 </div>
             @endif
 
-            <form action="{{ route('login') }}" method="POST">
+            <form action="{{ route('register') }}" method="POST">
                 @csrf
+
+                <!-- Input: Nama Lengkap -->
+                <div class="relative mb-5 group">
+                    <label
+                        class="absolute -top-2.5 left-3 bg-white px-1 text-[11px] font-semibold text-gray-500 group-focus-within:text-[#0088cc] transition-colors z-10">Nama
+                        Lengkap</label>
+                    <input type="text" name="nama_lengkap" value="{{ old('nama_lengkap') }}"
+                        placeholder="Aditya Rahma"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:border-[#0088cc] focus:ring-1 focus:ring-[#0088cc] text-sm transition-all bg-transparent text-gray-800"
+                        required>
+                </div>
+
+                <!-- Input: Email (Ditampung di name="username") -->
                 <div class="relative mb-5 group">
                     <label
                         class="absolute -top-2.5 left-3 bg-white px-1 text-[11px] font-semibold text-gray-500 group-focus-within:text-[#0088cc] transition-colors z-10">Email</label>
+                    <!-- Perhatikan name="username" di bawah ini -->
                     <input type="email" name="username" value="{{ old('username') }}" placeholder="dev@domain.com"
                         class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:border-[#0088cc] focus:ring-1 focus:ring-[#0088cc] text-sm transition-all bg-transparent text-gray-800"
                         required>
                 </div>
 
-                <div class="relative mb-6 group">
+                <!-- Input: Jenis Kelamin -->
+                <div class="relative mb-5 group">
+                    <label
+                        class="absolute -top-2.5 left-3 bg-white px-1 text-[11px] font-semibold text-gray-500 group-focus-within:text-[#0088cc] transition-colors z-10">Jenis
+                        Kelamin</label>
+                    <div class="relative">
+                        <select name="jenis_kelamin"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:border-[#0088cc] focus:ring-1 focus:ring-[#0088cc] text-sm transition-all bg-transparent text-gray-800 appearance-none cursor-pointer"
+                            required>
+                            <option value="Laki-Laki" {{ old('jenis_kelamin') == 'Laki-Laki' ? 'selected' : '' }}>Laki -
+                                Laki</option>
+                            <option value="Perempuan" {{ old('jenis_kelamin') == 'Perempuan' ? 'selected' : '' }}>
+                                Perempuan</option>
+                        </select>
+                        <div
+                            class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-800">
+                            <i class="fa-solid fa-chevron-down text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input: Nomer Telpon -->
+                <div class="relative mb-5 group">
+                    <label
+                        class="absolute -top-2.5 left-3 bg-white px-1 text-[11px] font-semibold text-gray-500 group-focus-within:text-[#0088cc] transition-colors z-10">Nomer
+                        Telpon</label>
+                    <input type="tel" name="no_telp" value="{{ old('no_telp') }}" placeholder="087855154533"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:border-[#0088cc] focus:ring-1 focus:ring-[#0088cc] text-sm transition-all bg-transparent text-gray-800"
+                        required>
+                </div>
+
+                <!-- Input: Password -->
+                <div class="relative mb-5 group">
                     <label
                         class="absolute -top-2.5 left-3 bg-white px-1 text-[11px] font-semibold text-gray-500 group-focus-within:text-[#0088cc] transition-colors z-10">Password</label>
                     <input type="password" id="password" name="password" placeholder="******************"
                         class="w-full pl-4 pr-12 py-3 border border-gray-300 rounded-md focus:outline-none focus:border-[#0088cc] focus:ring-1 focus:ring-[#0088cc] text-sm transition-all bg-transparent tracking-widest text-gray-800"
                         required>
-                    <button type="button" onclick="togglePassword('password', 'eyeIcon')"
-                        class="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-800 hover:text-[#0088cc] focus:outline-none transition-colors z-20">
-                        <i class="fa-solid fa-eye-slash text-sm" id="eyeIcon"></i>
+
+                    <button type="button" onclick="togglePassword('password', 'eyeIcon1')"
+                        class="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-800 hover:text-[#0088cc] focus:outline-none transition-colors cursor-pointer z-20">
+                        <i class="fa-solid fa-eye-slash text-sm" id="eyeIcon1"></i>
                     </button>
                 </div>
 
-                <div class="flex items-center justify-between mb-8">
-                    <label class="flex items-center gap-2 cursor-pointer group">
-                        <input type="checkbox" name="remember"
-                            class="w-4 h-4 rounded border-gray-300 text-[#0088cc] focus:ring-[#0088cc]">
-                        <span
-                            class="text-xs font-medium text-gray-500 group-hover:text-gray-700 transition-colors">Ingat
-                            Saya</span>
-                    </label>
-                    <a href="#"
-                        class="text-xs font-bold text-[#0088cc] hover:text-blue-700 transition-colors">Lupa
-                        Password?</a>
+                <!-- Input: Konfirmasi Password -->
+                <div class="relative mb-8 group">
+                    <label
+                        class="absolute -top-2.5 left-3 bg-white px-1 text-[11px] font-semibold text-gray-500 group-focus-within:text-[#0088cc] transition-colors z-10">Konfirmasi
+                        Password</label>
+                    <input type="password" id="password_confirm" name="password_confirmation"
+                        placeholder="******************"
+                        class="w-full pl-4 pr-12 py-3 border border-gray-300 rounded-md focus:outline-none focus:border-[#0088cc] focus:ring-1 focus:ring-[#0088cc] text-sm transition-all bg-transparent tracking-widest text-gray-800"
+                        required>
+
+                    <button type="button" onclick="togglePassword('password_confirm', 'eyeIcon2')"
+                        class="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-800 hover:text-[#0088cc] focus:outline-none transition-colors cursor-pointer z-20">
+                        <i class="fa-solid fa-eye-slash text-sm" id="eyeIcon2"></i>
+                    </button>
                 </div>
 
-                <div class="flex flex-col items-center justify-center">
+                <!-- Tombol Submit & Login -->
+                <div class="flex flex-col items-center justify-center mt-2">
                     <button type="submit"
-                        class="bg-[#0088cc] text-white px-10 py-2.5 rounded-md text-sm font-bold hover:bg-blue-600 transition-all flex items-center gap-2 shadow-md hover:shadow-lg hover:-translate-y-0.5 group mb-6">
-                        LOGIN <i
-                            class="fa-solid fa-arrow-right text-xs transition-transform group-hover:translate-x-1"></i>
+                        class="bg-[#0088cc] text-white px-10 py-2.5 rounded-md text-sm font-bold hover:bg-blue-600 transition-all duration-300 flex items-center gap-2 shadow-md hover:shadow-lg hover:-translate-y-0.5 group">
+                        REGISTER
+                        <i
+                            class="fa-solid fa-arrow-right text-xs transition-transform duration-300 group-hover:translate-x-1"></i>
                     </button>
 
-                    <div class="w-full flex items-center justify-between mb-6">
-                        <div class="w-full h-[1px] bg-gray-200"></div>
-                        <span class="px-4 text-xs font-semibold text-gray-400 whitespace-nowrap">ATAU MASUK
-                            DENGAN</span>
-                        <div class="w-full h-[1px] bg-gray-200"></div>
-                    </div>
-
-                    <!-- TOMBOL GOOGLE LOGIN -->
-                    <a href="{{ route('google.login') }}"
-                        class="w-full bg-white border border-gray-300 text-gray-700 py-2.5 rounded-md text-sm font-bold hover:bg-gray-50 transition-all flex items-center justify-center gap-3 shadow-sm group">
-                        <svg class="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                                fill="#4285F4" />
-                            <path
-                                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                                fill="#34A853" />
-                            <path
-                                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                                fill="#FBBC05" />
-                            <path
-                                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                                fill="#EA4335" />
-                        </svg>
-                        Google
-                    </a>
-
-                    <a href="{{ route('register') }}"
-                        class="mt-6 text-sm font-bold text-gray-600 hover:text-[#0088cc] transition-colors underline underline-offset-4 decoration-gray-400 hover:decoration-[#0088cc]">Register</a>
+                    <a href="{{ route('login') }}"
+                        class="mt-4 text-sm font-bold text-gray-600 hover:text-[#0088cc] transition-colors duration-300 underline underline-offset-4 decoration-gray-400 hover:decoration-[#0088cc]">Login</a>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Banner Kanan (Polaroid) -->
+    <!-- BAGIAN KANAN (Banner Biru & Foto Polaroid) -->
     <div
         class="hidden lg:flex w-1/2 bg-gradient-to-br from-[#0088cc] to-[#005f99] flex-col items-center justify-center relative overflow-hidden h-screen sticky top-0">
+
         <div class="absolute top-[-10%] right-[-10%] w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
         <div class="absolute bottom-[-10%] left-[-10%] w-96 h-96 bg-black/10 rounded-full blur-3xl"></div>
+
         <div class="text-center text-white z-20 mb-8 mt-10 drop-shadow-lg">
-            <h1 class="text-4xl xl:text-5xl font-light leading-[1.1] tracking-wide">SOLUSI TRENDI<br>TERKINI <span
-                    class="font-bold">STYLE</span><br>ANDALAN ADA<br>MASA KINI</h1>
+            <h1 class="text-4xl xl:text-5xl font-light leading-[1.1] tracking-wide">
+                SOLUSI TRENDI<br>
+                TERKINI <span class="font-bold">STYLE</span><br>
+                ANDALAN ADA<br>
+                MASA KINI
+            </h1>
         </div>
+
         <div class="absolute w-[65%] h-[55%] border-2 border-white/30 border-dashed z-0 bottom-16 rounded-xl"></div>
+
         <div
             class="absolute bottom-0 w-[85%] h-[65%] bg-gradient-to-t from-[#0f172a] to-[#1e293b] rounded-t-[6rem] z-10 shadow-2xl overflow-hidden flex justify-center items-center">
             <div class="absolute inset-0 opacity-20"
@@ -171,9 +206,10 @@
                 style="background-image: repeating-linear-gradient(-45deg, #3b82f6 0, #3b82f6 3px, transparent 3px, transparent 24px);">
             </div>
         </div>
+
         <div class="flex gap-8 relative z-20 mt-4 translate-y-12 perspective-1000">
             <div
-                class="polaroid-card animate-float-a bg-[#f8f7f2] p-3 pb-8 shadow-[0_20px_50px_rgba(0,0,0,0.5)] w-48 xl:w-56 transition-all duration-500 cursor-pointer group">
+                class="polaroid-card animate-float-a bg-[#f8f7f2] p-3 pb-8 shadow-[0_20px_50px_rgba(0,0,0,0.5)] w-48 xl:w-56 transition-all duration-500 ease-out cursor-pointer group">
                 <div
                     class="absolute -top-3 left-1/2 -translate-x-1/2 w-5 h-5 bg-gradient-to-br from-yellow-300 to-yellow-600 rounded-full shadow-md border border-yellow-200 z-10 group-hover:scale-110 transition-transform">
                     <div class="absolute inset-0.5 bg-gradient-to-tl from-black/20 to-transparent rounded-full"></div>
@@ -186,11 +222,13 @@
                 <div class="flex justify-between items-end px-2">
                     <p
                         class="text-black font-extrabold text-lg xl:text-xl tracking-tighter group-hover:text-[#0088cc] transition-colors">
-                        LOOK A</p><span class="text-black font-bold text-[10px] xl:text-xs opacity-60">(01)</span>
+                        LOOK A</p>
+                    <span class="text-black font-bold text-[10px] xl:text-xs opacity-60">(01)</span>
                 </div>
             </div>
+
             <div
-                class="polaroid-card animate-float-b bg-[#f8f7f2] p-3 pb-8 shadow-[0_20px_50px_rgba(0,0,0,0.5)] w-48 xl:w-56 transition-all duration-500 cursor-pointer group mt-12">
+                class="polaroid-card animate-float-b bg-[#f8f7f2] p-3 pb-8 shadow-[0_20px_50px_rgba(0,0,0,0.5)] w-48 xl:w-56 transition-all duration-500 ease-out cursor-pointer group mt-12">
                 <div
                     class="absolute -top-3 left-1/2 -translate-x-1/2 w-5 h-5 bg-gradient-to-br from-yellow-300 to-yellow-600 rounded-full shadow-md border border-yellow-200 z-10 group-hover:scale-110 transition-transform">
                     <div class="absolute inset-0.5 bg-gradient-to-tl from-black/20 to-transparent rounded-full"></div>
@@ -203,7 +241,8 @@
                 <div class="flex justify-between items-end px-2">
                     <p
                         class="text-black font-extrabold text-lg xl:text-xl tracking-tighter group-hover:text-[#0088cc] transition-colors">
-                        LOOK B</p><span class="text-black font-bold text-[10px] xl:text-xs opacity-60">(02)</span>
+                        LOOK B</p>
+                    <span class="text-black font-bold text-[10px] xl:text-xs opacity-60">(02)</span>
                 </div>
             </div>
         </div>
@@ -213,13 +252,16 @@
         function togglePassword(inputId, iconId) {
             const passwordInput = document.getElementById(inputId);
             const eyeIcon = document.getElementById(iconId);
+
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
-                eyeIcon.classList.replace('fa-eye-slash', 'fa-eye');
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
                 eyeIcon.classList.add('text-[#0088cc]');
             } else {
                 passwordInput.type = 'password';
-                eyeIcon.classList.replace('fa-eye', 'fa-eye-slash');
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
                 eyeIcon.classList.remove('text-[#0088cc]');
             }
         }
