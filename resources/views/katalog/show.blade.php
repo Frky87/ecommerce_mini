@@ -5,7 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $produk->nama_produk }} - Marketqu</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .custom-number-input::-webkit-inner-spin-button,
@@ -21,39 +23,95 @@
         .hide-scroll::-webkit-scrollbar {
             display: none;
         }
+
+        /* Custom Scrollbar untuk Mode Admin */
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        .custom-scroll::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
     </style>
 </head>
 
-<body class="bg-gray-50 font-sans selection:bg-[#0088cc] selection:text-white min-h-screen flex flex-col">
+<!-- CEK ROLE: Apakah yang login adalah Admin / Super Admin? -->
+@php
+    $isAdmin =
+        Auth::check() &&
+        in_array(strtolower(Auth::user()->role), ['admin', 'super admin', 'superadmin', 'super_admin']);
+@endphp
 
-    <!-- Panggil File Navbar -->
-    @include('layouts.navbar')
+<body
+    class="bg-gray-50 font-sans selection:bg-[#0088cc] selection:text-white relative {{ $isAdmin ? 'h-screen overflow-hidden flex' : 'min-h-screen flex flex-col' }}">
 
-    @php
-        $fotos = $produk->foto_array;
-        $mainFoto = count($fotos) > 0 ? $fotos[0] : null;
-        $seedString = $produk->id . date('Y-m-d H');
-        $hashValue = abs(crc32($seedString));
-        $persenDiskon = ($hashValue % 66) + 10;
-        $hargaNormal = $produk->harga / (1 - $persenDiskon / 100);
-    @endphp
+    @if ($isAdmin)
+        <!-- ========================================== -->
+        <!-- SHELL ADMIN (Sidebar + Topbar)             -->
+        <!-- ========================================== -->
+        @include('layouts.admin-sidebar')
+        <div class="flex-1 flex flex-col h-full overflow-hidden relative w-full bg-gray-50">
+            @include('layouts.admin-topbar')
+            <!-- Area Konten Bisa di-Scroll -->
+            <div class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 w-full custom-scroll">
+            @else
+                <!-- ========================================== -->
+                <!-- SHELL USER BIASA (Navbar)                  -->
+                <!-- ========================================== -->
+                @include('layouts.navbar')
+                <div class="flex-1 overflow-y-auto w-full pb-12">
+    @endif
 
+    <!-- BREADCRUMB -->
     <div class="max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-4">
         <nav class="text-sm font-medium text-gray-500">
-            <a href="{{ route('katalog') }}" class="hover:text-[#0088cc]">Home</a> <span class="mx-2">&gt;</span>
+            <a href="{{ route('katalog') }}" class="hover:text-[#0088cc]">Katalog</a> <span class="mx-2">&gt;</span>
             <a href="{{ route('katalog', ['kategori' => $produk->kategori]) }}"
                 class="hover:text-[#0088cc]">{{ $produk->kategori }}</a> <span class="mx-2">&gt;</span>
             <span class="text-gray-800 truncate">{{ $produk->nama_produk }}</span>
         </nav>
     </div>
 
-    <main class="flex-grow w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
-        <div
-            class="bg-white rounded-none sm:rounded-2xl shadow-sm border border-gray-200 overflow-hidden flex flex-col md:flex-row p-4 sm:p-8 gap-8 lg:gap-12">
+    <!-- KONTEN UTAMA DETAIL PRODUK -->
+    <main class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
 
+        <!-- Peringatan Khusus Admin -->
+        @if ($isAdmin)
+            <div class="bg-yellow-50 border border-yellow-200 p-4 rounded-xl mb-6 shadow-sm flex items-start gap-3">
+                <i class="fa-solid fa-shield-halved text-yellow-500 text-lg mt-0.5"></i>
+                <div>
+                    <p class="text-sm font-bold text-yellow-700">Pratinjau Mode Admin</p>
+                    <p class="text-xs font-medium text-yellow-600 mt-0.5">Anda melihat detail produk ini dari sudut
+                        pandang pembeli. Tombol beli telah dinonaktifkan.</p>
+                </div>
+            </div>
+        @endif
+
+        @php
+            $fotos = $produk->foto_array;
+            $mainFoto = count($fotos) > 0 ? $fotos[0] : null;
+            $seedString = $produk->id . date('Y-m-d H');
+            $hashValue = abs(crc32($seedString));
+            $persenDiskon = ($hashValue % 66) + 10;
+            $hargaNormal = $produk->harga / (1 - $persenDiskon / 100);
+        @endphp
+
+        <div
+            class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden flex flex-col md:flex-row p-4 sm:p-8 gap-8 lg:gap-12">
+
+            <!-- BAGIAN KIRI: FOTO & GALERI -->
             <div class="w-full md:w-5/12 flex flex-col items-center">
                 <div
-                    class="w-full aspect-square bg-gray-50 flex items-center justify-center rounded-xl border border-gray-100 p-4 mb-4 relative">
+                    class="w-full aspect-square bg-gray-50 flex items-center justify-center rounded-xl border border-gray-100 p-4 mb-4 relative overflow-hidden">
                     @if ($mainFoto)
                         <img src="{{ asset('storage/' . $mainFoto) }}" id="mainImage"
                             class="max-h-full max-w-full object-contain transition-transform duration-300 hover:scale-105">
@@ -74,6 +132,7 @@
                 @endif
             </div>
 
+            <!-- BAGIAN KANAN: DETAIL INFO -->
             <div class="w-full md:w-7/12 flex flex-col justify-start pt-2">
                 <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight leading-tight mb-4">
                     {{ $produk->nama_produk }}</h1>
@@ -94,13 +153,12 @@
                     <div class="text-gray-800 font-medium text-sm sm:text-base leading-relaxed">
                         <i class="fa-solid fa-arrow-rotate-left text-[#0088cc] mr-1"></i> 15 Hari Pengembalian
                         &nbsp;&bull;&nbsp;
-                        <i class="fa-solid fa-certificate text-[#0088cc] mr-1"></i> 100% Original &nbsp;&bull;&nbsp;
-                        <i class="fa-solid fa-shield-halved text-[#0088cc] mr-1"></i> Proteksi Kerusakan
+                        <i class="fa-solid fa-certificate text-[#0088cc] mr-1"></i> 100% Original
                     </div>
                 </div>
 
-                <!-- FORM KERANJANG -->
-                <form action="{{ route('cart.store') }}" method="POST">
+                <!-- FORM TAMBAH KERANJANG / BELI SEKARANG -->
+                <form method="POST">
                     @csrf
                     <input type="hidden" name="produk_id" value="{{ $produk->id }}">
 
@@ -118,7 +176,7 @@
                                 class="w-10 h-full bg-gray-50 hover:bg-gray-100 flex items-center justify-center text-gray-600 border-l border-gray-200"
                                 onclick="incrementQty()"><i class="fa-solid fa-plus text-xs"></i></button>
                         </div>
-                        <span class="text-sm text-gray-500 font-medium ml-2">Tersedia <span
+                        <span class="text-sm text-gray-500 font-medium ml-2">Sisa <span
                                 class="font-bold text-gray-800">{{ $produk->stok }}</span> barang</span>
                     </div>
 
@@ -127,38 +185,49 @@
                             class="mb-4 text-green-700 font-bold text-sm bg-green-50 p-4 rounded-xl border border-green-200">
                             <i class="fa-solid fa-check"></i> {{ session('success') }}</div>
                     @endif
+                    @if (session('error'))
+                        <div class="mb-4 text-red-700 font-bold text-sm bg-red-50 p-4 rounded-xl border border-red-200">
+                            <i class="fa-solid fa-triangle-exclamation"></i> {{ session('error') }}</div>
+                    @endif
+
                     @if (!Auth::check())
                         <div class="mb-4 text-red-600 font-bold text-sm bg-red-50 p-4 rounded-xl border border-red-200">
                             <i class="fa-solid fa-circle-exclamation"></i> Anda harus <a href="{{ route('login') }}"
-                                class="underline hover:text-red-800">Login</a> untuk memasukkan barang ke keranjang.
-                        </div>
+                                class="underline hover:text-red-800">Login</a> untuk belanja.</div>
                     @endif
 
                     <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-auto border-t border-gray-100 pt-8">
-                        <button type="submit" {{ !Auth::check() ? 'disabled' : '' }}
-                            class="flex-1 bg-blue-50 border-2 border-[#0088cc] text-[#0088cc] font-extrabold py-3.5 px-6 hover:bg-blue-100 transition-colors rounded-xl flex items-center justify-center gap-2 disabled:opacity-50">
-                            <i class="fa-solid fa-cart-plus"></i> Masukkan Keranjang
-                        </button>
-                        <button type="button"
-                            class="flex-1 bg-gradient-to-r from-[#0088cc] to-[#006699] text-white font-extrabold py-3.5 px-6 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 rounded-xl">
-                            Beli Sekarang
-                        </button>
+                        @if ($isAdmin)
+                            <button type="button" disabled
+                                class="flex-1 bg-gray-100 border-2 border-gray-200 text-gray-400 font-extrabold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 cursor-not-allowed opacity-80">
+                                <i class="fa-solid fa-ban"></i> Fitur Belanja Terkunci
+                            </button>
+                        @else
+                            <button type="submit" formaction="{{ route('cart.store') }}"
+                                {{ !Auth::check() ? 'disabled' : '' }}
+                                class="flex-1 bg-blue-50 border-2 border-[#0088cc] text-[#0088cc] font-extrabold py-3.5 px-6 hover:bg-blue-100 transition-colors rounded-xl flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                                <i class="fa-solid fa-cart-plus"></i> Ke Keranjang
+                            </button>
+                            <button type="submit" formaction="{{ route('checkout.prepare_direct') }}"
+                                {{ !Auth::check() ? 'disabled' : '' }}
+                                class="flex-1 bg-gradient-to-r from-[#0088cc] to-[#006699] text-white font-extrabold py-3.5 px-6 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed">
+                                Beli Sekarang
+                            </button>
+                        @endif
                     </div>
                 </form>
-
-                <div class="mt-8 flex flex-col gap-3 bg-gray-50 p-4 rounded-xl border border-gray-100">
-                    <div class="text-sm font-bold text-gray-800">Kode Produk <span
-                            class="float-right font-medium text-gray-600 uppercase">{{ $produk->kode_produk }}</span>
-                    </div>
-                    <div class="w-full h-px bg-gray-200"></div>
-                    <div class="text-sm font-bold text-gray-800">Kategori <span
-                            class="float-right font-medium text-gray-600">{{ $produk->kategori }}</span></div>
-                </div>
             </div>
         </div>
     </main>
 
-    <!-- Panggil File Modal Logout -->
+    <!-- PENUTUP SHELL -->
+    @if ($isAdmin)
+        </div>
+        </div>
+    @else
+        </div>
+    @endif
+
     @include('layouts.modal-logout')
 
     <script>

@@ -5,22 +5,21 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
 
 class IsAdmin
 {
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next): Response
     {
-        // Jika belum login, lempar ke halaman login
-        if (!Auth::check()) {
-            return redirect()->route('login');
+        if (Auth::check()) {
+            $role = strtolower(Auth::user()->role);
+
+            if (in_array($role, ['admin', 'super admin', 'super_admin', 'superadmin'])) {
+                return $next($request);
+            }
         }
 
-        // Jika yang login adalah admin, izinkan masuk!
-        if (Auth::user()->role === 'admin') {
-            return $next($request);
-        }
-
-        // Jika user biasa mencoba masuk ke link Admin, tendang balik ke Katalog!
-        return redirect()->route('katalog')->with('error', 'Akses Ditolak! Anda bukan Admin.');
+        // Jika user biasa mencoba masuk ke link admin, tendang ke katalog
+        return redirect()->route('katalog')->with('error', 'Akses ditolak! Anda tidak memiliki izin ke halaman Admin.');
     }
 }

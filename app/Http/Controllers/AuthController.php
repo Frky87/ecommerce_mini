@@ -16,6 +16,16 @@ class AuthController extends Controller
     // ==========================================
     public function showLogin()
     {
+        if (Auth::check()) {
+            $role = strtolower(Auth::user()->role);
+
+            // CEK 'super admin'
+            if (in_array($role, ['admin', 'super admin', 'super_admin', 'superadmin'])) {
+                return redirect()->route('admin.dashboard');
+            }
+            return redirect()->route('katalog');
+        }
+
         return view('auth.login');
     }
 
@@ -29,10 +39,13 @@ class AuthController extends Controller
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
 
-            if (Auth::user()->role === 'admin') {
-                return redirect()->route('produk.index');
+            $role = strtolower(Auth::user()->role);
+
+            // CEK 'super admin'
+            if (in_array($role, ['admin', 'super admin', 'super_admin', 'superadmin'])) {
+                return redirect()->route('admin.dashboard')->with('success', 'Selamat datang kembali, Super Admin/Admin!');
             } else {
-                return redirect()->route('katalog');
+                return redirect()->route('katalog')->with('success', 'Login berhasil! Selamat berbelanja.');
             }
         }
 
@@ -46,17 +59,20 @@ class AuthController extends Controller
     // ==========================================
     public function showRegister()
     {
+        if (Auth::check()) {
+            return redirect()->route('katalog');
+        }
         return view('auth.register');
     }
 
     public function processRegister(Request $request)
     {
         $request->validate([
-            'nama_lengkap' => 'required|string|max:255',
-            'username'     => 'required|string|email|max:255|unique:user,username',
+            'nama_lengkap'  => 'required|string|max:255',
+            'username'      => 'required|string|email|max:255|unique:user,username',
             'jenis_kelamin' => 'required|in:Laki-Laki,Perempuan',
-            'no_telp'      => 'required|string|max:15',
-            'password'     => 'required|string|min:8|confirmed',
+            'no_telp'       => 'required|string|max:15',
+            'password'      => 'required|string|min:8|confirmed',
         ], [
             'username.unique' => 'Email ini sudah terdaftar, silakan gunakan email lain atau login.',
             'password.confirmed' => 'Konfirmasi password tidak cocok.',
@@ -93,18 +109,15 @@ class AuthController extends Controller
             $user = User::where('username', $googleUser->getEmail())->first();
 
             if ($user) {
-                // Jika user sudah ada, sinkronkan google_id
                 $user->update([
                     'google_id' => $googleUser->getId()
                 ]);
             } else {
-                // Jika user belum ada (Registrasi via Google)
                 $user = User::create([
                     'nama_lengkap'  => $googleUser->getName() ?? 'Pengguna Google',
                     'username'      => $googleUser->getEmail(),
                     'google_id'     => $googleUser->getId(),
-                    'password'      => Hash::make(Str::random(24)), // Password acak kuat
-                    // Memberikan nilai default agar database tidak error (karena wajib diisi / NOT NULL)
+                    'password'      => Hash::make(Str::random(24)),
                     'jenis_kelamin' => 'Laki-Laki',
                     'no_telp'       => '-',
                     'role'          => 'user',
@@ -113,13 +126,15 @@ class AuthController extends Controller
 
             Auth::login($user);
 
-            if ($user->role === 'admin') {
-                return redirect()->route('produk.index');
+            $role = strtolower(Auth::user()->role);
+
+            // CEK 'super admin'
+            if (in_array($role, ['admin', 'super admin', 'super_admin', 'superadmin'])) {
+                return redirect()->route('admin.dashboard')->with('success', 'Berhasil login Google sebagai Admin!');
             } else {
                 return redirect()->route('katalog')->with('success', 'Berhasil login menggunakan Google!');
             }
         } catch (\Exception $e) {
-            // Jika masih error, pesannya akan dimunculkan agar kita tahu sebabnya
             return redirect()->route('login')->withErrors(['username' => 'Gagal login via Google: ' . $e->getMessage()]);
         }
     }
@@ -134,6 +149,6 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('katalog');
+        return redirect()->route('login')->with('success', 'Anda berhasil keluar dari sistem.');
     }
 }

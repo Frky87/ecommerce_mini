@@ -53,7 +53,8 @@
                 </a>
 
                 @auth
-                    <a href="#" class="flex items-center gap-2 hover:text-[#0088cc] transition-colors group">
+                    <a href="{{ route('pesanan.index') }}"
+                        class="flex items-center gap-2 {{ request()->routeIs('pesanan.*') ? 'text-[#0088cc]' : 'hover:text-[#0088cc] text-gray-600' }} transition-colors group">
                         <i
                             class="fa-solid fa-file-invoice text-base sm:text-lg text-[#0088cc] group-hover:scale-110 transition-transform"></i>
                         <span class="hidden sm:inline">Pesanan</span>

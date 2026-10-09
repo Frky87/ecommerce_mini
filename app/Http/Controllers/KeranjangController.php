@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Keranjang;
+use App\Models\Produk;
 use Illuminate\Support\Facades\Auth;
 
 class KeranjangController extends Controller
@@ -16,16 +17,29 @@ class KeranjangController extends Controller
 
     public function store(Request $request)
     {
+        // BLOKIR ADMIN DARI MEMASUKKAN BARANG KE KERANJANG
+        if (Auth::check() && in_array(strtolower(Auth::user()->role), ['admin', 'super admin', 'superadmin', 'super_admin'])) {
+            return redirect()->back()->with('error', 'Akses Ditolak! Admin tidak diperbolehkan berbelanja.');
+        }
+
         $request->validate([
-            'produk_id' => 'required|exists:produk,id',
-            'kuantitas' => 'required|integer|min:1'
+            'produk_id' => 'required',
+            'kuantitas' => 'required|numeric|min:1'
         ]);
+
+        $produk = Produk::findOrFail($request->produk_id);
+
+        if ($request->kuantitas > $produk->stok) {
+            return redirect()->back()->with('error', 'Stok tidak mencukupi!');
+        }
 
         $cart = Keranjang::where('user_id', Auth::id())->where('produk_id', $request->produk_id)->first();
 
         if ($cart) {
-            $cart->kuantitas += $request->kuantitas;
-            $cart->save();
+            if (($cart->kuantitas + $request->kuantitas) > $produk->stok) {
+                return redirect()->back()->with('error', 'Total kuantitas melebihi stok yang tersedia!');
+            }
+            $cart->update(['kuantitas' => $cart->kuantitas + $request->kuantitas]);
         } else {
             Keranjang::create([
                 'user_id' => Auth::id(),
@@ -37,28 +51,32 @@ class KeranjangController extends Controller
         return redirect()->back()->with('success', 'Produk berhasil ditambahkan ke keranjang!');
     }
 
-    // FUNGSI BARU: Untuk Mengupdate Kuantitas (+ / -)
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'kuantitas' => 'required|integer|min:1'
-        ]);
+        $request->validate(['kuantitas' => 'required|numeric|min:1']);
+        $cart = Keranjang::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
 
-        $cart = Keranjang::where('id', $id)->where('user_id', Auth::id())->first();
-        if ($cart) {
-            // Pastikan kuantitas tidak melebihi stok yang ada
-            $stokTersedia = $cart->produk->stok;
-            $qtyBaru = $request->kuantitas > $stokTersedia ? $stokTersedia : $request->kuantitas;
-
-            $cart->update(['kuantitas' => $qtyBaru]);
+        if ($request->kuantitas > $cart->produk->stok) {
+            return redirect()->back()->with('error', 'Kuantitas melebihi stok yang tersedia!');
         }
 
-        return redirect()->back(); // Reload halaman tanpa pesan berlebihan
+        $cart->update(['kuantitas' => $request->kuantitas]);
+        return redirect()->back();
     }
 
     public function destroy($id)
     {
         Keranjang::where('id', $id)->where('user_id', Auth::id())->delete();
         return redirect()->back()->with('success', 'Produk dihapus dari keranjang.');
+    }
+
+    public function destroyMultiple(Request $request)
+    {
+        if (!$request->cart_ids) {
+            return redirect()->back()->with('error', 'Tidak ada produk yang dipilih untuk dihapus.');
+        }
+
+        Keranjang::whereIn('id', $request->cart_ids)->where('user_id', Auth::id())->delete();
+        return redirect()->back()->with('success', 'Produk terpilih berhasil dihapus dari keranjang.');
     }
 }
