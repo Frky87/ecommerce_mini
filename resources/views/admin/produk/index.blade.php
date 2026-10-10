@@ -15,6 +15,11 @@
             <div class="bg-green-50 text-green-700 p-4 rounded-xl mb-6 font-medium"><i class="fa-solid fa-check"></i>
                 {{ session('success') }}</div>
         @endif
+        @if (session('error'))
+            <div class="bg-red-50 text-red-700 p-4 rounded-xl mb-6 font-medium"><i
+                    class="fa-solid fa-triangle-exclamation"></i>
+                {{ session('error') }}</div>
+        @endif
 
         <div class="w-full overflow-x-auto border border-gray-200 rounded-xl">
             <table class="w-full text-left border-collapse whitespace-nowrap">
@@ -25,15 +30,16 @@
                         <th class="p-4">Nama</th>
                         <th class="p-4">Kategori</th>
                         <th class="p-4">Harga</th>
+                        <th class="p-4">Stok</th> <!-- TAMBAHAN HEADER STOK -->
                         <th class="p-4 text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 text-sm">
-                    @foreach ($produk as $p)
+                    @forelse ($produk as $p)
                         <tr class="hover:bg-blue-50/50">
                             <td class="p-4">
                                 @php $fotos = $p->foto_array; @endphp
-                                @if (count($fotos) > 0)
+                                @if (is_array($fotos) && count($fotos) > 0)
                                     <img src="{{ asset('storage/' . $fotos[0]) }}"
                                         class="w-14 h-14 object-cover rounded-lg shadow-sm border border-gray-200">
                                 @else
@@ -42,11 +48,26 @@
                                 @endif
                             </td>
                             <td class="p-4 text-gray-500">{{ $p->kode_produk }}</td>
-                            <td class="p-4 font-bold">{{ $p->nama_produk }}</td>
+                            <td class="p-4 font-bold">
+                                {{ $p->nama_produk }}
+                                <!-- Jika ini Super Admin, tampilkan nama pemilik produknya -->
+                                @if (isset($isSuper) && $isSuper && isset($scope) && $scope != 'mine')
+                                    <div class="text-[10px] text-gray-400 font-normal mt-1"><i
+                                            class="fa-solid fa-store"></i>
+                                        {{ $p->user->nama_toko ?? ($p->user->nama_lengkap ?? 'Toko Tidak Diketahui') }}
+                                    </div>
+                                @endif
+                            </td>
                             <td class="p-4"><span
                                     class="bg-blue-50 text-[#0088cc] px-3 py-1 rounded-lg text-xs font-bold">{{ $p->kategori }}</span>
                             </td>
                             <td class="p-4 font-extrabold">Rp {{ number_format($p->harga, 0, ',', '.') }}</td>
+
+                            <!-- TAMBAHAN DATA STOK -->
+                            <td class="p-4 font-bold {{ $p->stok < 5 ? 'text-red-500' : 'text-green-600' }}">
+                                {{ $p->stok }} Pcs
+                            </td>
+
                             <td class="p-4 flex gap-2 justify-center">
                                 <a href="{{ route('produk.edit', $p->id) }}"
                                     class="bg-yellow-400 text-white px-3 py-2 rounded-lg font-bold"><i
@@ -57,7 +78,14 @@
                                             class="fa-solid fa-trash"></i> Hapus</button></form>
                             </td>
                         </tr>
-                    @endforeach
+                    @empty
+                        <tr>
+                            <td colspan="7" class="p-8 text-center text-gray-400 font-medium">
+                                <i class="fa-solid fa-box-open text-3xl mb-3 block text-gray-300"></i>
+                                Belum ada produk yang ditambahkan.
+                            </td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>

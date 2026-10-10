@@ -122,11 +122,6 @@
                             class="fa-solid fa-wallet text-[#0088cc]"></i> Metode Pembayaran</span>
                     <div class="flex flex-col sm:flex-row gap-3 w-full">
                         <label
-                            class="flex-1 flex items-center gap-3 cursor-pointer p-3 border-2 border-[#0088cc] bg-blue-50 text-[#0088cc] font-bold rounded-xl transition-all hover:shadow-md">
-                            <input type="radio" name="metode_pembayaran" value="QRIS" checked
-                                class="w-4 h-4 accent-[#0088cc]"> QRIS
-                        </label>
-                        <label
                             class="flex-1 flex items-center gap-3 cursor-pointer p-3 border border-gray-200 text-gray-600 font-bold rounded-xl transition-all hover:bg-gray-50 hover:border-gray-300">
                             <input type="radio" name="metode_pembayaran" value="Virtual Account"
                                 class="w-4 h-4 accent-[#0088cc]"> Transfer VA

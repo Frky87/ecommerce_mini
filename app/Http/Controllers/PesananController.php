@@ -4,11 +4,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Pesanan;
+use App\Models\Ulasan;
 use Illuminate\Support\Facades\Auth;
 
 class PesananController extends Controller
 {
-    // Menampilkan halaman Daftar Pesanan User (Dengan Fitur Filter)
+    // ==========================================
+    // MENAMPILKAN HALAMAN DAFTAR PESANAN
+    // ==========================================
     public function index(Request $request)
     {
         // Siapkan antrean pencarian data pesanan
@@ -31,20 +34,21 @@ class PesananController extends Controller
     public function selesai($id)
     {
         // Pastikan hanya pemilik pesanan yang bisa klik selesai
-        $pesanan = \App\Models\Pesanan::where('id', $id)
-            ->where('user_id', \Illuminate\Support\Facades\Auth::id())
+        $pesanan = Pesanan::where('id', $id)
+            ->where('user_id', Auth::id())
             ->firstOrFail();
 
-        // Ubah status jadi Selesai
-        $pesanan->update(['status' => 'Selesai']);
+        // Gunakan save manual anti-blokir
+        $pesanan->status = 'Selesai';
+        $pesanan->save();
 
         return redirect()->back()->with('success', 'Hore! Pesanan telah selesai. Jangan lupa beri bintang 5 dan penilaian produk ya!');
     }
 
     // ==========================================
-    // FUNGSI UNTUK MENYIMPAN REVIEW / ULASAN
+    // FUNGSI UNTUK MENYIMPAN REVIEW / ULASAN (ANTI-ERROR)
     // ==========================================
-    public function submitReview(\Illuminate\Http\Request $request, $id)
+    public function submitReview(Request $request, $id)
     {
         // Validasi input rating dan foto
         $request->validate([
@@ -53,36 +57,47 @@ class PesananController extends Controller
             'foto_review' => 'nullable|image|mimes:jpeg,png,jpg|max:2048' // Max 2MB
         ]);
 
-        $pesanan = \App\Models\Pesanan::with('details')->where('id', $id)
-            ->where('user_id', \Illuminate\Support\Facades\Auth::id())
-            ->firstOrFail();
+        try {
+            $pesanan = Pesanan::with('details')->where('id', $id)
+                ->where('user_id', Auth::id())
+                ->firstOrFail();
 
-        // Proses simpan foto jika user mengunggahnya
-        $fotoPath = null;
-        if ($request->hasFile('foto_review')) {
-            $fotoPath = $request->file('foto_review')->store('reviews', 'public');
-        }
-
-        // Karena dalam 1 pesanan bisa ada banyak produk, 
-        // kita simpan ulasannya untuk setiap produk di pesanan tersebut.
-        foreach ($pesanan->details as $detail) {
-            // Cek agar tidak review dobel
-            $cekReview = \App\Models\Ulasan::where('pesanan_id', $pesanan->id)
-                ->where('produk_id', $detail->produk_id)
-                ->first();
-
-            if (!$cekReview) {
-                \App\Models\Ulasan::create([
-                    'pesanan_id'  => $pesanan->id,
-                    'produk_id'   => $detail->produk_id,
-                    'user_id'     => \Illuminate\Support\Facades\Auth::id(),
-                    'rating'      => $request->rating,
-                    'komentar'    => $request->komentar,
-                    'foto_review' => $fotoPath
-                ]);
+            // Proses simpan foto jika user mengunggahnya
+            $fotoPath = null;
+            if ($request->hasFile('foto_review')) {
+                $fotoPath = $request->file('foto_review')->store('reviews', 'public');
             }
-        }
 
-        return redirect()->back()->with('success', 'Terima kasih banyak! Penilaian Anda berhasil disimpan dan akan sangat berguna bagi pembeli lainnya.');
+            // Simpan ulasan untuk setiap produk di pesanan tersebut
+            foreach ($pesanan->details as $detail) {
+                // Cek agar tidak review dobel
+                $cekReview = Ulasan::where('pesanan_id', $pesanan->id)
+                    ->where('produk_id', $detail->produk_id)
+                    ->first();
+
+                if (!$cekReview) {
+                    // SIMPAN MANUAL SATU PER SATU (DIJAMIN MASUK 100%)
+                    $ulasan = new Ulasan();
+                    $ulasan->pesanan_id  = $pesanan->id;
+                    $ulasan->produk_id   = $detail->produk_id;
+                    $ulasan->user_id     = Auth::id();
+                    $ulasan->rating      = $request->rating;
+                    $ulasan->komentar    = $request->komentar;
+                    $ulasan->foto_review = $fotoPath;
+                    $ulasan->save(); // Eksekusi simpan ke database
+                }
+            }
+
+            // PASTIKAN STATUS PESANAN MENJADI "SELESAI" JIKA SEBELUMNYA BELUM
+            if ($pesanan->status !== 'Selesai') {
+                $pesanan->status = 'Selesai';
+                $pesanan->save();
+            }
+
+            return redirect()->back()->with('success', 'Terima kasih banyak! Penilaian Anda berhasil disimpan dan akan sangat berguna bagi pembeli lainnya.');
+        } catch (\Exception $e) {
+            // JIKA GAGAL, sistem akan menampilkan notifikasi warna merah berisi sumber error
+            return redirect()->back()->with('error', 'Gagal mengirim ulasan: ' . $e->getMessage());
+        }
     }
 }

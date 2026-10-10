@@ -1,8 +1,8 @@
 <header
     class="h-20 bg-white shadow-sm flex items-center justify-between lg:justify-end px-4 sm:px-8 z-10 shrink-0 w-full relative">
-    <button id="openMobileSidebar"
-        class="lg:hidden w-10 h-10 rounded-lg bg-blue-50 text-[#0088cc] flex items-center justify-center hover:bg-[#0088cc] hover:text-white transition-colors shrink-0">
-        <i class="fa-solid fa-bars text-lg"></i>
+    <button onclick="toggleSidebar()"
+        class="lg:hidden w-10 h-10 bg-white border border-gray-200 rounded-xl flex items-center justify-center text-gray-600 hover:bg-blue-50 hover:text-[#0088cc] shadow-sm transition-colors mr-4 shrink-0">
+        <i class="fa-solid fa-bars-staggered"></i>
     </button>
 
     <div class="relative group border border-transparent hover:border-gray-100 p-2 rounded-lg shrink-0 z-50">

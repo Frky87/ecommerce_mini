@@ -17,6 +17,7 @@ class Produk extends Model
         'kategori',
         'harga',
         'stok',
+        'deskripsi',
         'foto'
     ];
 
@@ -37,5 +38,13 @@ class Produk extends Model
 
         // Jika data lama (cuma 1 gambar berupa teks biasa)
         return [$foto];
+    }
+
+    protected $guarded = ['id'];
+
+    // Relasi ke Pemilik Toko (Admin)
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

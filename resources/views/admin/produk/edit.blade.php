@@ -40,6 +40,12 @@
                         class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-[#0088cc]"></div>
             </div>
 
+            <div class="md:col-span-2 mb-6">
+                <label class="block text-sm font-bold text-gray-700 mb-2">Deskripsi Lengkap Produk</label>
+                <textarea name="deskripsi" rows="4" required placeholder="Jelaskan spesifikasi, bahan, ukuran, dll..."
+                    class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-[#0088cc] focus:ring-2 focus:ring-[#0088cc]/20 transition-all">{{ old('deskripsi', $produk->deskripsi) }}</textarea>
+            </div>
+
             <div class="mb-8 p-5 bg-blue-50/50 border border-blue-100 rounded-xl">
                 <label class="block text-sm font-bold text-[#0088cc] mb-2">Ganti Foto Produk (Bisa Pilih Banyak)</label>
                 <p class="text-xs text-gray-500 mb-3">Kosongkan jika tidak ingin mengganti foto saat ini.</p>
