@@ -213,7 +213,7 @@
             </div>
         </div>
 
-        <!-- BAGIAN 2: PROFIL TOKO PENJUAL (DENGAN TOMBOL KLIK MODAL) -->
+        <!-- BAGIAN 2: PROFIL TOKO PENJUAL -->
         @if ($produk->user)
             @php
                 $uName = htmlspecialchars(trim($produk->user->nama_lengkap ?? 'Penjual'), ENT_QUOTES);
@@ -398,7 +398,8 @@
                     <div class="flex items-center gap-3 border-b border-gray-200 pb-3" id="wrapNamaToko">
                         <div
                             class="w-8 h-8 rounded-full bg-blue-100 text-[#0088cc] flex items-center justify-center shrink-0">
-                            <i class="fa-solid fa-store"></i></div>
+                            <i class="fa-solid fa-store"></i>
+                        </div>
                         <div class="min-w-0">
                             <span class="text-[10px] font-black text-gray-400 uppercase tracking-wider block">Nama
                                 Toko</span>
@@ -409,7 +410,8 @@
                     <div class="flex items-center gap-3 border-b border-gray-200 pb-3">
                         <div
                             class="w-8 h-8 rounded-full bg-blue-100 text-[#0088cc] flex items-center justify-center shrink-0">
-                            <i class="fa-solid fa-phone"></i></div>
+                            <i class="fa-solid fa-phone"></i>
+                        </div>
                         <div class="min-w-0">
                             <span
                                 class="text-[10px] font-black text-gray-400 uppercase tracking-wider block">Telepon</span>
@@ -420,7 +422,8 @@
                     <div class="flex items-start gap-3 border-b border-gray-200 pb-3">
                         <div
                             class="w-8 h-8 rounded-full bg-blue-100 text-[#0088cc] flex items-center justify-center shrink-0 mt-0.5">
-                            <i class="fa-solid fa-quote-left"></i></div>
+                            <i class="fa-solid fa-quote-left"></i>
+                        </div>
                         <div class="min-w-0 flex-1">
                             <span class="text-[10px] font-black text-gray-400 uppercase tracking-wider block">Deskripsi
                                 Toko</span>
@@ -432,7 +435,8 @@
                     <div class="flex items-start gap-3">
                         <div
                             class="w-8 h-8 rounded-full bg-blue-100 text-[#0088cc] flex items-center justify-center shrink-0 mt-0.5">
-                            <i class="fa-solid fa-map-location-dot"></i></div>
+                            <i class="fa-solid fa-map-location-dot"></i>
+                        </div>
                         <div class="min-w-0 flex-1">
                             <span class="text-[10px] font-black text-gray-400 uppercase tracking-wider block">Alamat
                                 Toko</span>
@@ -532,7 +536,7 @@
             document.getElementById('modalEmail').innerText = email;
             document.getElementById('modalTelp').innerText = telp ? telp : '-';
             document.getElementById('modalDeskripsi').innerText = deskripsi ? '"' + deskripsi + '"' :
-            'Belum ada deskripsi.';
+                'Belum ada deskripsi.';
             document.getElementById('modalAlamat').innerText = alamat ? alamat : 'Belum mengatur alamat.';
 
             const txtNamaToko = document.getElementById('modalToko');
